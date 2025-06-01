@@ -19,7 +19,7 @@
 
      • Mechanic
 
-  ### [ Pollapat Rattanapol (Au)](https://www.instagram.com/pollapat.ax/)
+  ### [ Pollapat Rattanapol (Au)](https://www.instagram.com/pxllapat.ax/)
 
      • Controller
 
