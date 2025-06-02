@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Photo/FUSION.png" width="150">
+  <img src="Photo/FUSION_LOGO.png" width="150">
 </p>
 
 # FUSION
