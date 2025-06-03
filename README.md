@@ -15,7 +15,7 @@
     
 ### [ Techin Kaewprem (Tae)](https://www.instagram.com/t_kaewprem/)
 
-     • Budy
+     • Co - Controller
 
      • Mechanic
 
