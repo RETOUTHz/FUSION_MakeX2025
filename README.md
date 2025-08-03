@@ -9,7 +9,9 @@
 * It is a robot competition format that promotes learning in the form of STEM education in the 21st century that is more than just a robot competition to win, but also inspires being a creator or inventor, problem solving and teamwork.
 
 ## • 🏆Achievements 2025 | Computer - Science 6 th , ACS
-    **
+    • TOP 9 | Point Race # 1
+    • TOP 5 | Point Race # 2
+    • TOP 1 | Point Race # 3
 
 ## • 👯👯 Member Of FUSION
     
