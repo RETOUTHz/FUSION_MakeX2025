@@ -20,7 +20,7 @@ en = {
     "LF": encoder_motor_class("M6", "INDEX1"), #Left_Front wheel
     "LB": encoder_motor_class("M2", "INDEX1"), #Left_Back wheel
     "RF": encoder_motor_class("M1", "INDEX1"), #Right_Front wheel 
-    "RB": encoder_motor_class("M5", "INDEX1"),  #Right_Back wheel
+    "RB": encoder_motor_class("M4", "INDEX1"),  #Right_Back wheel
     "FEED": encoder_motor_class("M3", "INDEX1")
 }
 
@@ -29,15 +29,16 @@ sv = {
 }
 
 debug = led_matrix_class("PORT5","INDEX1")
-rk = ranging_sensor_class("PORT4", "INDEX2")
-lk = ranging_sensor_class("PORT4", "INDEX1")
-
+bk = ranging_sensor_class("PORT5", "INDEX2")
+lk = ranging_sensor_class("PORT5", "INDEX1")
 """
 AUTO SECLET
 """
 def select():
-    Right()
-    #Left()
+    if lk.get_distance() > 100:
+        block_right()
+    else:
+        block_left()
 """
 SYSTEM
 """
@@ -47,10 +48,8 @@ def lift(a:int):
     time.sleep(0.1)
     power_expand_board.set_power("DC1",15)
 
-def gripper(a:int,b:int):
+def gripper(a:int):
     power_expand_board.set_power("DC3",a)
-    time.sleep(0.1)
-    power_expand_board.set_power("DC3",b)
 
 def feed(a:int,b:int):
     power_expand_board.set_power("DC8",a)
@@ -87,10 +86,7 @@ def red_servo():
         sv["shooter"].set_power(0)
 
 def servo_move(angle):
-    if sv["shooter"].get_value("angle") < 105:
-        sv["shooter"].move(angle, 50)
-    else:
-        sv["shooter"].move_to(95, 50)
+        sv["shooter"].move_to(angle, 50)
 
 def move_forward(a:int):
         en["RF"].set_speed(0)
@@ -104,23 +100,29 @@ def move_backward(a:int):
         en["LB"].set_speed(0)
         en["LF"].set_speed(-a)
 
-def move_around(a:int):
+def turn_right(a:int):
         en["RF"].set_speed(a)
         en["RB"].set_speed(a)
         en["LB"].set_speed(-a)
         en["LF"].set_speed(a)
 
-def slide_left(a:int):
+def turn_left(a:int):
+        en["RF"].set_speed(-a)
+        en["RB"].set_speed(-a)
+        en["LB"].set_speed(a)
+        en["LF"].set_speed(-a)
+
+def slide_right(a:int):
         en["RF"].set_speed(a)
         en["RB"].set_speed(0)
         en["LB"].set_speed(-a*1.3)
         en["LF"].set_speed(0)
 
-def slide_right(a:int):
+def slide_left(a:int):
         en["RF"].set_speed(-a)
-        en["RB"].set_speed(0)
+        en["RB"].set_speed(-a*0.4)
         en["LB"].set_speed(a*1.6)
-        en["LF"].set_speed(0)
+        en["LF"].set_speed(a*0.2)
 
 def stop_moving():
         en["RF"].set_speed(0)
@@ -136,14 +138,10 @@ CONTROLLER
 """
 class movement:
     def control_movement_font():            
-        rf = ((gamepad.get_joystick("Lx") + gamepad.get_joystick("Rx")) * 0.85) #+ math.fabs((gamepad.get_joystick("Ly") * 0.1))
-        lb = (((gamepad.get_joystick("Lx") * 0.8 ) - gamepad.get_joystick("Rx")) * 0.85) #- math.fabs((gamepad.get_joystick("Ly") * 0.1))
-        lf = (gamepad.get_joystick("Ly") + -gamepad.get_joystick("Rx")) * 0.8 #- math.fabs((gamepad.get_joystick("Lx") * 0.05))
-        rb = (gamepad.get_joystick("Ly") - -gamepad.get_joystick("Rx")) * 0.75 #+ math.fabs((gamepad.get_joystick("Lx") * 0.05))
-        if math.fabs(gamepad.get_joystick("Rx")) > 10:
-            power_expand_board.set_power("DC6", -gamepad.get_joystick("Rx") * 100)
-        # else:
-        #     power_expand_board.set_power("DC7", 0)
+        rf = ((gamepad.get_joystick("Lx") + gamepad.get_joystick("Rx")*0.9) * 0.8)
+        lb = (((gamepad.get_joystick("Lx") * 0.8 ) - gamepad.get_joystick("Rx")*0.9) * 0.8)
+        lf = ((gamepad.get_joystick("Ly") + -gamepad.get_joystick("Rx")*0.9) * 0.85 )
+        rb = ((gamepad.get_joystick("Ly") - -gamepad.get_joystick("Rx")*0.9) * 0.85 )
         en["RF"].set_power(-rf)
         en["RB"].set_power(-rb)
         en["LB"].set_power(lb)
@@ -152,16 +150,25 @@ class movement:
     def control_movement_right():
         rf = (gamepad.get_joystick("Ly") - gamepad.get_joystick("Rx")) * 0.8
         lb = (gamepad.get_joystick("Ly") + gamepad.get_joystick("Rx")) * 0.8
-        lf = (-gamepad.get_joystick("Lx") + gamepad.get_joystick("Rx")) * 0.75
-        rb = (-gamepad.get_joystick("Lx") - gamepad.get_joystick("Rx")) * 0.75
-        # if math.fabs(gamepad.get_joystick("Rx")) > 10:
-        #     power_expand_board.set_power("DC7", -gamepad.get_joystick("Rx") * 100)
-        # else:
-        #     power_expand_board.set_power("DC7", 0)
+        lf = (-gamepad.get_joystick("Lx") + gamepad.get_joystick("Rx")) * 0.85
+        rb = (-gamepad.get_joystick("Lx") - gamepad.get_joystick("Rx")) * 0.85
         en["RF"].set_power(rf)
         en["RB"].set_power(rb)
         en["LB"].set_power(-lb)
         en["LF"].set_power(-lf)
+
+class blinking:
+    blink = False
+    def control_blink():
+        if novapi.timer() > 0.75:
+            blinking.blink = not blinking.blink
+            novapi.reset_timer()
+
+    def do_blinking():
+        if blinking.blink:
+            debug.show_image("00003c7e7e3c000000003c7e7e3c0000")
+        else:
+            debug.show_image("00103030303010000010303030301000")
 
 """
 CONTROLLER
@@ -179,11 +186,14 @@ class controller():
             stop_all()
 
         elif gamepad.is_key_pressed("L2"):
-            shooter_angle(62)
-            shooting(90)
+            shooter_angle(73)
+            shooting(85)
 
         elif gamepad.is_key_pressed("L_Thumb"):
-            shoot(0,0,-50)
+            shooter_angle(70)
+
+        elif gamepad.is_key_pressed("R_Thumb"):
+            shooter_angle(70)
 
         elif gamepad.is_key_pressed("N2"):
             shoot(90,90,90)
@@ -193,22 +203,22 @@ class controller():
             shoot(-90,-90,-90)
         
         elif gamepad.is_key_pressed("R1"):
-            shooting(85)
+            shooting(80)
 
         elif gamepad.is_key_pressed("R2"):
             shooting(0)
 
         elif gamepad.is_key_pressed("Up"):
-            shooter_angle(25)
+            shooter_angle(30)
 
         elif gamepad.is_key_pressed("Down"):
-            shooter_angle(80)
+            shooter_angle(83)
         
         elif gamepad.is_key_pressed("Right"):
-            servo_move(-3)
+            shooter_angle(81)
 
         elif gamepad.is_key_pressed("Left"):
-            servo_move(3)
+            shooter_angle(93)
         
         elif gamepad.is_key_pressed("N4"):
             shooting(45)
@@ -222,19 +232,19 @@ class controller():
             lift(-100)
 
         elif gamepad.is_key_pressed("Down"):
-            lift(50)
+            lift(100)
 
         elif gamepad.is_key_pressed("N4"):
-            gripper(-100,-100)
+            gripper(-100)
 
         elif gamepad.is_key_pressed("N1"):
-            gripper(100,100)
+            gripper(100)
 
         elif gamepad.is_key_pressed("Left"):
-            gripper(100,100)
+            gripper(100)
 
         elif gamepad.is_key_pressed("Right"):
-            gripper(-100,-100)
+            gripper(-100)
 
         elif gamepad.is_key_pressed("L1"):
             stop_all()
@@ -251,118 +261,70 @@ class controller():
         elif gamepad.is_key_pressed("L2"):
             box(100)
         
-        elif gamepad.is_key_pressed("R2"):
-            box(-100)
+        elif gamepad.is_key_pressed("R1"):
+            shooting(0)
 
     def change_mode():
         if gamepad.is_key_pressed("+"):
-            controller.mode = "2"
-        elif gamepad.is_key_pressed("≡"):
             controller.mode = "1"
+        elif gamepad.is_key_pressed("≡"):
+            controller.mode = "2"
 """
 AUTO
 """
-def Right():
-    power_expand_board.set_power("DC1",100)
-    time.sleep(1.05)
-    power_expand_board.set_power("DC1",10) #lift up phase 1
-    slide_right(200)
-    time.sleep(1)
-    stop_moving() #set 0 phase 1
-    while lk.get_distance() <= 130:
-        debug.show(lk.get_distance(), wait=False)
-        slide_left(200)
+def block_right():
+    turn_left(40)
+    time.sleep(0.1)
     stop_moving()
-    move_around(100)
+    while bk.get_distance() <= 170:
+        box(100)
+        debug.show(bk.get_distance(), wait=False)
+        move_forward(500)
+    stop_moving()
     time.sleep(0.5)
-    stop_moving()
-    move_backward(75)
-    time.sleep(2.5)
-    stop_moving() # set 0 phase 1
-    move_forward(75)
-    time.sleep(0.2)
-    stop_moving() # set 0 phase 1
-    while lk.get_distance() <= 175:
-        debug.show(lk.get_distance(), wait=False)
-        slide_left(100)
-    stop_moving()
-    time.sleep(1)
-    power_expand_board.set_power("DC3",-100)
-    slide_right(200)
-    time.sleep(1)
-    stop_moving()
-    power_expand_board.set_power("DC3",100)
-    time.sleep(1)
-    power_expand_board.set_power("DC3",0) # gripper phsae 1
-    move_around(100)
-    time.sleep(0.2)
-    stop_moving()
-    move_backward(100)
-    time.sleep(1)
-    stop_moving() 
-    move_forward(75)
-    time.sleep(1.4)
-    stop_moving() #set 0 phase 2
-    while lk.get_distance() <= 175:
-        debug.show(lk.get_distance(), wait=False)
-        slide_left(75)
-    stop_moving()
-    time.sleep(1)
-    power_expand_board.set_power("DC3",-100)
-    slide_right(200)
-    time.sleep(1)
-    stop_moving()
-    power_expand_board.set_power("DC3",100)
-    time.sleep(1)
-    power_expand_board.set_power("DC3",0) # gripper phase 2
-
-def Left():
-    power_expand_board.set_power("DC1",100)
-    time.sleep(1.1)
-    power_expand_board.set_power("DC1",10) #lift up phase 1
-    move_backward(100)
-    time.sleep(0.5)
-    stop_moving()
-    slide_right(200)
-    time.sleep(1)
-    stop_moving() #set 0 phase 1
-    while lk.get_distance() <= 135:
-        debug.show(lk.get_distance(), wait=False)
-        slide_left(200)
-    stop_moving()
-    move_forward(75)
+    slide_left(150)
     time.sleep(2)
-    stop_moving() # set 0 phase 1
-    while lk.get_distance() <= 175:
-        debug.show(lk.get_distance(), wait=False)
-        slide_left(100)
     stop_moving()
-    time.sleep(1)
-    power_expand_board.set_power("DC3",-100)
-    slide_right(200)
+    turn_left(-100)
+    time.sleep(0.5)
+    stop_moving()
+    turn_right(100)
+    time.sleep(0.5)
+    stop_moving()
+    time.sleep(5)
+    stop_all() 
+
+def block_left():
+    turn_right(40)
+    time.sleep(0.1)
+    stop_moving()
+    while bk.get_distance() <= 156:
+        box(100)
+        debug.show(bk.get_distance(), wait=False)
+        move_forward(500)
+    stop_moving()
+    slide_right(100)
+    time.sleep(0.7)
+    box(100)
+    time.sleep(0.5)
+    stop_moving()
+    turn_right(50)
+    time.sleep(0.2)
+    stop_moving()
+    move_forward(60)
+    time.sleep(0.2)
+    stop_moving()
+    slide_left(100)
     time.sleep(1)
     stop_moving()
-    power_expand_board.set_power("DC3",100)
-    time.sleep(1)
-    power_expand_board.set_power("DC3",0) # gripper phsae 1
-    move_backward(100)
-    time.sleep(1)
-    stop_moving() #set 0 phase 2
-    move_forward(75)
-    time.sleep(1.5)
-    stop_moving() 
-    while lk.get_distance() <= 175:
-        debug.show(lk.get_distance(), wait=False)
-        slide_left(100)
-    stop_moving()
-    time.sleep(1)
-    power_expand_board.set_power("DC3",-100)
-    slide_right(200)
+    turn_left(100)
     time.sleep(1)
     stop_moving()
-    power_expand_board.set_power("DC3",100)
+    move_forward(255)
     time.sleep(1)
-    power_expand_board.set_power("DC3",0) # gripper phase 2
+    stop_moving()
+    time.sleep(5)
+    stop_all()
 """
 MAIN
 """
@@ -373,6 +335,7 @@ while True:
         while not not power_manage_module.is_auto_mode():
             pass
     else:
+        blinking.control_blink()
         controller.change_mode()
         if controller.mode == "1":
             debug.show(sv["shooter"].get_value("angle"),wait = False)
@@ -380,6 +343,7 @@ while True:
             red_servo()
             
         else:
-            debug.show_image("ffffffffffffffffffffffffffffffff")
+            blinking.do_blinking()
             controller.mode2()
-            red_servo()ccccc
+
+            red_servo()
