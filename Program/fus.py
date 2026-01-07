@@ -9,6 +9,7 @@ from mbuild.ranging_sensor import ranging_sensor_class
 from mbuild.smart_camera import smart_camera_class
 from mbuild.led_matrix import led_matrix_class
 from mbuild.button import button_class
+from mbuild.speaker import speaker_class
 import mbuild
 import time
 import math
@@ -28,6 +29,7 @@ sv = {
     "shooter" : smartservo_class("M4","INDEX1")
 }
 
+speaker = speaker_class("PORT4", "INDEX1")
 debug = led_matrix_class("PORT5","INDEX1")
 bk = ranging_sensor_class("PORT5", "INDEX2")
 lk = ranging_sensor_class("PORT5", "INDEX1")
@@ -46,14 +48,14 @@ SYSTEM
 def lift(a:int):
     power_expand_board.set_power("DC1",-a)
     time.sleep(0.1)
-    power_expand_board.set_power("DC1",15)
+    power_expand_board.set_power("DC1",30)
 
 def gripper(a:int):
-    power_expand_board.set_power("DC3",a)
+    power_expand_board.set_power("DC2",a)
 
 def feed(a:int,b:int):
-    power_expand_board.set_power("DC8",a)
-    power_expand_board.set_power("DC2",-b)
+    power_expand_board.set_power("DC7",-a)
+    power_expand_board.set_power("DC8",b)
 
 def stop_all():
     power_expand_board.set_power("DC1",0)
@@ -68,11 +70,11 @@ def stop_all():
 
 def shoot(a:int,b:int,c:int):
     power_expand_board.set_power("DC8",a)
-    power_expand_board.set_power("DC2",-b)
+    power_expand_board.set_power("DC7",-b)
     en["FEED"].set_power(c)
     time.sleep(0.1)
     power_expand_board.set_power("DC8",0)
-    power_expand_board.set_power("DC2",0)
+    power_expand_board.set_power("DC7",0)
 
 def shooting(a:int):
     power_expand_board.set_power("BL1",a)
@@ -89,10 +91,10 @@ def servo_move(angle):
         sv["shooter"].move_to(angle, 50)
 
 def move_forward(a:int):
-        en["RF"].set_speed(0)
-        en["RB"].set_speed(-a)
-        en["LB"].set_speed(0)
-        en["LF"].set_speed(a)
+        en["RF"].set_power(0)
+        en["RB"].set_power(-a)
+        en["LB"].set_power(0)
+        en["LF"].set_power(a)
 
 def move_backward(a:int):
         en["RF"].set_speed(0)
@@ -131,17 +133,17 @@ def stop_moving():
         en["LF"].set_speed(0)
 
 def box(a:int):
-    power_expand_board.set_power("DC6",a)
+    power_expand_board.set_power("DC6",-a)
 
 """
 CONTROLLER
 """
 class movement:
     def control_movement_font():            
-        rf = ((gamepad.get_joystick("Lx") + gamepad.get_joystick("Rx")*0.9) * 0.8)
-        lb = (((gamepad.get_joystick("Lx") * 0.8 ) - gamepad.get_joystick("Rx")*0.9) * 0.8)
-        lf = ((gamepad.get_joystick("Ly") + -gamepad.get_joystick("Rx")*0.9) * 0.85 )
-        rb = ((gamepad.get_joystick("Ly") - -gamepad.get_joystick("Rx")*0.9) * 0.85 )
+        rf = ((gamepad.get_joystick("Lx") + gamepad.get_joystick("Rx")*0.9) * 0.85)
+        lb = (((gamepad.get_joystick("Lx") * 0.8 ) - gamepad.get_joystick("Rx")*0.9) * 0.95)
+        lf = ((gamepad.get_joystick("Ly") + -gamepad.get_joystick("Rx")*0.9) * 0.9 )
+        rb = ((gamepad.get_joystick("Ly") - -gamepad.get_joystick("Rx")*0.9) * 0.9 )
         en["RF"].set_power(-rf)
         en["RB"].set_power(-rb)
         en["LB"].set_power(lb)
@@ -186,8 +188,8 @@ class controller():
             stop_all()
 
         elif gamepad.is_key_pressed("L2"):
-            shooter_angle(73)
-            shooting(85)
+            shooter_angle(25)
+            shooting(95)
 
         elif gamepad.is_key_pressed("L_Thumb"):
             shooter_angle(70)
@@ -201,24 +203,25 @@ class controller():
 
         elif gamepad.is_key_pressed("N3"):
             shoot(-90,-90,-90)
+            box(-100)
         
         elif gamepad.is_key_pressed("R1"):
-            shooting(80)
+            shooting(90)
 
         elif gamepad.is_key_pressed("R2"):
             shooting(0)
 
         elif gamepad.is_key_pressed("Up"):
-            shooter_angle(30)
+            shooter_angle(83)
 
         elif gamepad.is_key_pressed("Down"):
-            shooter_angle(83)
+            shooter_angle(30)
         
         elif gamepad.is_key_pressed("Right"):
-            shooter_angle(81)
+            shooter_angle(15)
 
         elif gamepad.is_key_pressed("Left"):
-            shooter_angle(93)
+            shooter_angle(5)
         
         elif gamepad.is_key_pressed("N4"):
             shooting(45)
@@ -274,60 +277,56 @@ AUTO
 """
 def block_right():
     turn_left(40)
-    time.sleep(0.1)
+    time.sleep(0.2)
     stop_moving()
-    while bk.get_distance() <= 170:
+    while bk.get_distance() <= 153:
         box(100)
         debug.show(bk.get_distance(), wait=False)
-        move_forward(500)
+        move_forward(100)
     stop_moving()
-    time.sleep(0.5)
-    slide_left(150)
+    time.sleep(2)
+    turn_right(50)
+    time.sleep(1)
+    turn_left(50)
+    time.sleep(2)
+    turn_right(50)
     time.sleep(2)
     stop_moving()
-    turn_left(-100)
-    time.sleep(0.5)
-    stop_moving()
-    turn_right(100)
-    time.sleep(0.5)
-    stop_moving()
-    time.sleep(5)
-    stop_all() 
-
-def block_left():
-    turn_right(40)
-    time.sleep(0.1)
-    stop_moving()
-    while bk.get_distance() <= 156:
-        box(100)
-        debug.show(bk.get_distance(), wait=False)
-        move_forward(500)
-    stop_moving()
-    slide_right(100)
-    time.sleep(0.7)
-    box(100)
-    time.sleep(0.5)
-    stop_moving()
-    turn_right(50)
-    time.sleep(0.2)
-    stop_moving()
-    move_forward(60)
-    time.sleep(0.2)
-    stop_moving()
-    slide_left(100)
-    time.sleep(1)
-    stop_moving()
-    turn_left(100)
-    time.sleep(1)
-    stop_moving()
-    move_forward(255)
+    time.sleep(10)
+    move_backward(100)
     time.sleep(1)
     stop_moving()
     time.sleep(5)
     stop_all()
+
+def block_left():
+    turn_right(100)
+    time.sleep(0.4)
+    stop_moving()
+    while bk.get_distance() <= 152:
+        box(100)
+        debug.show(bk.get_distance(), wait=False)
+        move_forward(100)
+    stop_moving()
+    time.sleep(2)
+    turn_left(50)
+    time.sleep(1)
+    turn_right(50)
+    time.sleep(2)
+    turn_left(50)
+    time.sleep(2)
+    stop_moving()
+    time.sleep(10)
+    move_backward(100)
+    time.sleep(1)
+    stop_moving()
+    time.sleep(5)
+    stop_all()
+
 """
 MAIN
 """
+speaker.set_volume(100)
 while True:
     #debug.show_image("ff828c8c80ff008383ff00ffc90101ff")
     if power_manage_module.is_auto_mode():

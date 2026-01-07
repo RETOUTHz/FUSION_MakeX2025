@@ -13,6 +13,7 @@
     • 🎖️TOP 5 | Point Race # 2
     • 🎖️TOP 1 | Point Race # 3
     • 🥉Second Runner-up | MakeX Thailand Nation Championship 2025
+    • 🥈First Runner-up | MakeX World Championship 2025
 
 ## • 👯👯 Member Of FUSION
     
@@ -22,7 +23,7 @@
 
      • Mechanic
 
-  ### [ Pollapat Rattanapol (Au)](https://www.instagram.com/pxllapat.ax/)
+  ### [ Pollapat Rattanapol (Au)](https://www.instagram.com/pxllpt.ax/)
 
      • Controller
 
