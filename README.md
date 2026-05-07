@@ -13,7 +13,7 @@
     • 🎖️TOP 5 | Point Race # 2
     • 🎖️TOP 1 | Point Race # 3
     • 🥉Second Runner-up | MakeX Thailand Nation Championship 2025
-    • 🥈First Runner-up | MakeX World Championship 2025
+    • 🥈First Runner-up | MakeX Global Final 2025
 
 ## • 👯👯 Member Of FUSION
     
@@ -43,7 +43,7 @@
 
 ## • 🤖  Structure
 
-<img src="Photo/Front.png" width="300">
-<img src="Photo/Right.png" width="300">
-<img src="Photo/Left.png" width="300">
-<img src="Photo/Back.png" width="300">
+<img src="Photo/front.png" width="300">
+<img src="Photo/right.png" width="300">
+<img src="Photo/left.png" width="300">
+<img src="Photo/back.png" width="300">
